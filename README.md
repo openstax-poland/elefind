@@ -1,5 +1,7 @@
 # content-finder
 
+Content finder will find every place of your choice in selected book and provide you list of links to places where your selector occures.
+
 ## Project setup
 ```
 yarn install
