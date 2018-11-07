@@ -32,11 +32,13 @@
 import JobsList from './JobsList/JobsList'
 import StatusIcon from './StatusIcon/StatusIcon'
 import { mapGetters } from 'vuex'
+import axios from 'axios'
 
 export default {
   data () {
     return {
       activeTab: 'queue',
+      currentQue: [], // async GET
     }
   },
   computed: {
@@ -56,6 +58,20 @@ export default {
   components: {
     JobsList,
     StatusIcon,
+  },
+  beforeCreate() {
+    const config = {
+      responseType: 'json'
+    }
+
+    axios.get('https://content-finder.herokuapp.com/API/CurrentQue.do', config)
+      .then(res => {
+        return this.currentQue = res.data.Books
+      })
+      .catch(e => {
+        console.log('error:',e)
+        return e
+      })
   }
 }
 </script>

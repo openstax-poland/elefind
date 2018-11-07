@@ -4,16 +4,14 @@
     <div class="form-group">
       <label>Select books to search in</label>
       <multiselect 
-        v-model="selectedBooks" 
+        v-model="selectedBook" 
         :options="booksList" 
-        :close-on-select="false"
-        :multiple="true"
-        :clear-on-select="false"
         placeholder="Pick some"
-        label="name"
-        track-by="name">
+        label="book_name"
+        track-by="book_name">
       </multiselect>
     </div>
+    <button v-if="false" @click="add">Add</button><!-- temporary button for testing POST requests -->
     <div class="form-group">
       <label>Select what you want to find</label>
       <multiselect 
@@ -23,8 +21,7 @@
         :multiple="true"
         :clear-on-select="false"
         placeholder="Pick some"
-        label="name"
-        track-by="name">
+        :disabled="selectedBook ? false : true">
       </multiselect>
     </div>
     <div class="form-group" :class="{'error': !isValidSelector}">
@@ -51,42 +48,32 @@
 
 <script>
 import Multiselect from 'vue-multiselect'
+import axios from 'axios'
 
 export default {
   data () {
     return {
       showSuccess: false,
       invalidReason: '',
-      selectedBooks: [],
-      booksList: [
-        {
-          name: 'Biology',
-        },
-        {
-          name: 'Physics',
-        },
-        {
-          name: 'Algebra',
-        }
-      ],
+      selectedBook: '',
+      booksList: [], // async GET
+      avaliableSearchElements: [], // async GET
+      defaultSelectors: [],
       selectedDefaultSelectors: [],
-      defaultSelectors: [
-        {
-          name: 'tables',
-        },
-        {
-          name: 'footnotes',
-        },
-        {
-          name: 'notes',
-        }
-      ],
       customSelector: '',
       isValidSelector: true,
       invalidSelectorInformation: ''
     }
   },
   watch: {
+    selectedBook (book) {
+      this.avaliableSearchElements.forEach(el => {
+        console.log('book_name:', el.book_name, 'bookName:', book.book_name)
+        if (el.book_name === book.book_name) {
+          this.defaultSelectors = el.elements
+        }
+      })
+    },
     customSelector (val) {
       const isValid = this.validateSelector(val)
       if (this.isValidSelector !== isValid) {
@@ -97,7 +84,7 @@ export default {
   computed: {
     validateForm () {
       if (this.isValidSelector) {
-        if (this.selectedBooks.length > 0) {
+        if (this.selectedBook) {
           if (this.selectedDefaultSelectors.length || this.customSelector) {
             return true
           }
@@ -107,6 +94,15 @@ export default {
     }
   },
   methods: {
+    add () {
+      axios.post('https://content-finder.herokuapp.com/API/NewTask.do', {bookName: 'Biology', element: 'figure', isTagCustom: false})
+        .then(res => {
+          console.log(res)
+        })
+        .catch(e => {
+          console.log(e)
+        })
+    },
     validateSelector (selector) {
       if (!selector) return true
 
@@ -159,13 +155,36 @@ export default {
       }
     },
     clearForm () {
-      this.selectedBooks = []
+      this.selectedBook = ''
       this.selectedDefaultSelectors = []
       this.customSelector = ''
     }
   },
   components: {
     Multiselect,
+  },
+  beforeCreate() {
+    const config = {
+      responseType: 'json'
+    }
+
+    axios.get('https://content-finder.herokuapp.com/BooksAvaliable', config)
+      .then(res => {
+        return this.booksList = res.data.Books
+      })
+      .catch(e => {
+        console.log('error:',e)
+        return e
+      })
+
+    axios.get('https://content-finder.herokuapp.com/API/AvaliableSearchElements', config)
+      .then(res => {
+        return this.avaliableSearchElements = res.data.Elements
+      })
+      .catch(e => {
+        console.log('error:',e)
+        return e
+      })
   }
 }
 </script>
