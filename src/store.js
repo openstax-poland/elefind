@@ -5,6 +5,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    isLoading: false,
+    results: {},
     jobs: [
       {
         id: 0,
@@ -72,6 +74,27 @@ export default new Vuex.Store({
     ]
   },
   getters: {
+    isLoading (state) {
+      return state.isLoading
+    },
+    results (state) {
+      let instances = 0
+
+      if (state.results.results) {
+        state.results.results.forEach(el => {
+          if (el.instances) {
+            instances += el.instances
+          } else {
+            instances++
+          }
+        })
+      }
+
+      return {
+        instances,
+        ...state.results
+      }
+    },
     getJobs (state) {
       return state.jobs
     },
@@ -91,6 +114,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    setResults (state, payload) {
+      state.results = payload
+    },
     addNewJob (state, payload) {
       console.log('add new job')
       const newJob = {
@@ -102,6 +128,9 @@ export default new Vuex.Store({
       }
       console.log(newJob)
       state.jobs.push(newJob)
+    },
+    setLoading (state, status) {
+      state.isLoading = status
     }
   },
   actions: {

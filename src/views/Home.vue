@@ -26,7 +26,7 @@ import Results from '@/components/Results/Results'
 export default {
   data() {
     return {
-      showResults: false,
+      showResults: true,
       data: {},
     }
   },
