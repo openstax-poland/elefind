@@ -2,26 +2,22 @@
   <div class="settings">
     <h2 class="title">Settings</h2>
     <div class="form-group">
-      <label>Select books to search in</label>
+      <label>Select book to search in</label>
       <multiselect 
         v-model="selectedBook" 
         :options="booksList" 
-        placeholder="Pick some"
+        placeholder="Pick one"
         label="book_name"
         track-by="book_name">
       </multiselect>
     </div>
-    <button v-if="false" @click="add">Add</button><!-- temporary button for testing POST requests -->
     <div class="form-group">
       <label>Select what you want to find</label>
-      <multiselect 
-        v-model="selectedDefaultSelectors" 
+      <multiselect
+        v-model="selectedDefaultSelector" 
         :options="defaultSelectors" 
-        :close-on-select="false"
-        :multiple="true"
-        :clear-on-select="false"
-        placeholder="Pick some"
-        :disabled="selectedBook ? false : true">
+        placeholder="Pick one"
+        :disabled="(selectedBook && !customSelector) ? false : true">
       </multiselect>
     </div>
     <div class="form-group" :class="{'error': !isValidSelector}">
@@ -31,13 +27,13 @@
     </div>
     <div class="form-group">
       <button 
-        @click="send" 
+        @click="getResults()" 
         class="send" 
         :disabled="!validateForm">
-        Start new job
+        Get results
       </button>
       <transition name="fade" mode="out-in">
-        <span v-if="showSuccess" class="success">Job was added</span>
+        <span v-if="showSuccess" class="success">Success</span>
       </transition>
       <transition name="fade" mode="out-in">
         <span v-if="invalidReason" class="invalid">{{ this.invalidReason }}</span>
@@ -59,7 +55,7 @@ export default {
       booksList: [], // async GET
       avaliableSearchElements: [], // async GET
       defaultSelectors: [],
-      selectedDefaultSelectors: [],
+      selectedDefaultSelector: '',
       customSelector: '',
       isValidSelector: true,
       invalidSelectorInformation: ''
@@ -68,7 +64,6 @@ export default {
   watch: {
     selectedBook (book) {
       this.avaliableSearchElements.forEach(el => {
-        console.log('book_name:', el.book_name, 'bookName:', book.book_name)
         if (el.book_name === book.book_name) {
           this.defaultSelectors = el.elements
         }
@@ -85,7 +80,7 @@ export default {
     validateForm () {
       if (this.isValidSelector) {
         if (this.selectedBook) {
-          if (this.selectedDefaultSelectors.length || this.customSelector) {
+          if (this.selectedDefaultSelector.length || this.customSelector) {
             return true
           }
         }
@@ -94,15 +89,6 @@ export default {
     }
   },
   methods: {
-    add () {
-      axios.post('https://content-finder.herokuapp.com/API/NewTask.do', {bookName: 'Biology', element: 'figure', isTagCustom: false})
-        .then(res => {
-          console.log(res)
-        })
-        .catch(e => {
-          console.log(e)
-        })
-    },
     validateSelector (selector) {
       if (!selector) return true
 
@@ -154,9 +140,57 @@ export default {
         localStorage.setItem('lastTimeSearch', now)
       }
     },
+    getResults () {
+      this.$store.commit('setLoading', true)
+      
+      const payload = {
+        config: {
+          responseType: 'json'
+        },
+        params: {
+          bookName: this.selectedBook.book_name,
+          element: this.customSelector ? this.customSelector : this.selectedDefaultSelector
+        }
+      }
+
+      const customElementsEndpoint = process.env.NODE_ENV === 'development' ?
+      'http://localhost:3000/elements' :
+      'http://pistacja.kylos.net.pl:3000/elements'
+
+      const link = this.customSelector ? 
+      customElementsEndpoint : 'https://content-finder.herokuapp.com/API/GetElementsNonCustom.do'
+
+      axios.get(link, payload)
+        .then(res => {
+          const data = {
+            bookName: payload.params.bookName,
+            thumbnail: this.selectedBook.book_thumbnail,
+            element: payload.params.element,
+            results: res.data.Results
+          }
+          this.$store.commit('setResults', data)
+
+          this.showSuccess = true
+          setTimeout(() => {
+            this.showSuccess = false
+          }, 2000)
+
+          localStorage.setItem('lastTimeSearch', new Date())
+          this.$store.commit('setLoading', false)
+        })
+        .catch(e => {
+          console.log(e)
+          this.invalidReason = e
+          setTimeout(() => {
+            this.invalidReason = ''
+          }, 10000)
+
+          this.$store.commit('setLoading', false)
+        })
+    },
     clearForm () {
       this.selectedBook = ''
-      this.selectedDefaultSelectors = []
+      this.selectedDefaultSelector = ''
       this.customSelector = ''
     }
   },
