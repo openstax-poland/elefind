@@ -31,18 +31,20 @@ export default {
   },
   beforeCreate () {
     axios.get('https://content-finder.herokuapp.com/')
-      .then(res => {
+      .then(() => {
         this.statusServerDefaults = 'active'
       })
       .catch(e => {
+        console.log(e)
         this.statusServerDefaults = 'error'
       })
 
     axios.get('http://pistacja.kylos.net.pl:3000/')
-      .then(res => {
+      .then(() => {
         this.statusServerCustom = 'active'
       })
       .catch(e => {
+        console.log(e)
         this.statusServerCustom = 'error'
       })
   }
