@@ -14,8 +14,8 @@
     <div class="form-group">
       <label>Select what you want to find</label>
       <multiselect
-        v-model="selectedDefaultSelector" 
-        :options="defaultSelectors" 
+        v-model="selectedDefaultSelector"
+        :options="defaultSelectors"
         placeholder="Pick one"
         :disabled="(selectedBook && !customSelector) ? false : true">
       </multiselect>
@@ -78,12 +78,8 @@ export default {
   },
   computed: {
     validateForm () {
-      if (this.isValidSelector) {
-        if (this.selectedBook) {
-          if (this.selectedDefaultSelector.length || this.customSelector) {
-            return true
-          }
-        }
+      if (this.isValidSelector && this.selectedBook && (this.selectedDefaultSelector || this.customSelector)) {
+        return true
       }
       return false
     }
