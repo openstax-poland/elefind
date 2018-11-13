@@ -29,7 +29,7 @@
       <button 
         @click="getResults()" 
         class="send" 
-        :disabled="!validateForm">
+        :disabled="!validateForm || isLoading">
         Get results
       </button>
       <transition name="fade" mode="out-in">
@@ -45,6 +45,7 @@
 <script>
 import Multiselect from 'vue-multiselect'
 import axios from 'axios'
+import { mapGetters } from 'vuex'
 
 export default {
   data () {
@@ -77,6 +78,9 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      isLoading: 'isLoading',
+    }),
     validateForm () {
       if (this.isValidSelector && this.selectedBook && (this.selectedDefaultSelector || this.customSelector)) {
         return true
@@ -175,13 +179,12 @@ export default {
           this.$store.commit('setLoading', false)
         })
         .catch(e => {
-          console.log(e)
-          this.invalidReason = e
+          this.invalidReason = e.response.data ? e.response.data : e.response
           setTimeout(() => {
             this.invalidReason = ''
           }, 10000)
 
-          this.$store.commit('setLoading', false)
+          return this.$store.commit('setLoading', false)
         })
     },
     clearForm () {
@@ -203,7 +206,6 @@ export default {
         return this.booksList = res.data.Books
       })
       .catch(e => {
-        console.log('error:',e)
         return e
       })
 
@@ -212,7 +214,6 @@ export default {
         return this.avaliableSearchElements = res.data.Elements
       })
       .catch(e => {
-        console.log('error:',e)
         return e
       })
   }
