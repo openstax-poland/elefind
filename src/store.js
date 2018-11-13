@@ -83,7 +83,7 @@ export default new Vuex.Store({
       if (state.results.results) {
         state.results.results.forEach(el => {
           if (el.instances) {
-            instances += el.instances
+            instances += Number(el.instances)
           } else {
             instances++
           }
