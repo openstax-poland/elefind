@@ -155,7 +155,7 @@ export default {
 
       const customElementsEndpoint = process.env.NODE_ENV === 'development' ?
       'http://localhost:3000/elements' :
-      'http://pistacja.kylos.net.pl:3000/elements'
+      'https://elefind.naukosfera.com/elements'
 
       const link = this.customSelector ? 
       customElementsEndpoint : 'https://content-finder.herokuapp.com/API/GetElementsNonCustom.do'

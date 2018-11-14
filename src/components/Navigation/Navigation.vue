@@ -1,16 +1,11 @@
 <template>
   <div class="top-bar">
-    <nav>
-      <ul>
-        <li>
-          <router-link to="/" :active="'active'">Home</router-link>
-        </li>
-      </ul>
-    </nav>
-    <div class="servers-status">
-      <span class="title">Server status:</span>
-      <span class="server">Defaults elements: <status-icon :status="statusServerDefaults" /></span>
-      <span class="server">Custom elements: <status-icon :status="statusServerCustom" /></span>
+    <div class="container">
+      <div class="servers-status">
+        <span class="title">Server status:</span>
+        <span class="server">Defaults elements: <status-icon :status="statusServerDefaults" /></span>
+        <span class="server">Custom elements: <status-icon :status="statusServerCustom" /></span>
+      </div>
     </div>
   </div>
 </template>
@@ -39,7 +34,7 @@ export default {
         this.statusServerDefaults = 'error'
       })
 
-    axios.get('http://pistacja.kylos.net.pl:3000/')
+    axios.get('https://elefind.naukosfera.com/')
       .then(() => {
         this.statusServerCustom = 'active'
       })
@@ -57,6 +52,12 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 50px;
+  height: 80px;
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 }
 
 nav {
