@@ -257,8 +257,7 @@ export default {
   }
   .information {
     opacity: 0;
-    position: absolute;
-    bottom: -20px;
+    margin-top: 10px;
     font-size: 14px;
     color: #e53f3f;
     transition: 0.3s opacity ease-in-out;
