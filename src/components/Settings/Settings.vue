@@ -66,7 +66,7 @@ export default {
     selectedBook (book) {
       this.avaliableSearchElements.forEach(el => {
         if (el.book_name === book.book_name) {
-          this.defaultSelectors = el.elements
+          this.defaultSelectors = el.elements[0] === null ? [] : el.elements
         }
       })
     },
