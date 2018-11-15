@@ -128,6 +128,9 @@ export default {
         border-bottom: 1px solid #e8e8e8;
         text-align: left;
         &:hover {
+          background-color: #eee;
+        }
+        &:nth-child(2n) {
           background-color: #f2f2f2;
         }
         .element {
