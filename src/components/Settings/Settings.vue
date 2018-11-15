@@ -2,7 +2,7 @@
   <div class="settings">
     <h2 class="title">Settings</h2>
     <div class="form-group">
-      <label>Select book to search in</label>
+      <label>Select a book</label>
       <multiselect 
         v-model="selectedBook" 
         :options="booksList" 
@@ -12,7 +12,7 @@
       </multiselect>
     </div>
     <div class="form-group">
-      <label>Select what you want to find</label>
+      <label>Select element that you need to find</label>
       <multiselect
         v-model="selectedDefaultSelector"
         :options="defaultSelectors"
@@ -74,6 +74,9 @@ export default {
       const isValid = this.validateSelector(val)
       if (this.isValidSelector !== isValid) {
         this.isValidSelector = isValid
+      }
+      if (val === 'pineapple') {
+        this.$emit('showEasterEgg')
       }
     }
   },
