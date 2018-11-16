@@ -127,6 +127,7 @@ export default {
         padding: 10px 0;
         border-bottom: 1px solid #e8e8e8;
         text-align: left;
+        display: flex;
         &:hover {
           background-color: #eee;
         }
@@ -143,7 +144,7 @@ export default {
         }
         .module {
           margin-left: 10px;
-          width: 50%;
+          flex: 1;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -152,7 +153,8 @@ export default {
         .link {
           float: right;
           margin-right: 10px;
-          width: 40%;
+          max-width: 20%;
+          flex: 1;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
