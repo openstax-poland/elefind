@@ -101,6 +101,15 @@ export default {
     validateSelector (selector) {
       if (!selector) return true
 
+      const splitAtHas = selector.split(':has')
+      if (splitAtHas.length > 0) {
+        if (splitAtHas.length > 2) {
+          this.invalidSelectorInformation = {message: 'We do not suppot nested :has selectors.'}
+          return false
+        }
+        return true
+      }
+
       try {
         document.querySelector(selector)
         return true
