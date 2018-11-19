@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="backdrop">
+  <div class="backdrop">
     <span class="close" @click="close()">X</span>
     <div class="content">
       <h1>How to search for custom element</h1>
@@ -30,6 +30,13 @@
       <h2>More advanced examples:</h2>
       <div class="example">
         <p>
+          Search for tables with images: <strong>table:has(img)</strong>
+          <br>
+          Search for tables inside Solution containers<strong>.os-solution-container:has(table)</strong>
+        </p>
+      </div>
+      <div class="example">
+        <p>
           Search for element which has multiple classes: <strong>.class1.class2</strong>
           <br>
           This selector will find elements which has both: <strong>class1</strong> and <strong>class2</strong>
@@ -54,15 +61,16 @@
 
 <script>
 export default {
-  props: ['show'],
   methods: {
     close () {
       this.$emit('close')
-      document.getElementsByTagName('body')[0].style.overflow = null
     }
   },
   created() {
     document.getElementsByTagName('body')[0].style.overflow = 'hidden'
+  },
+  beforeDestroy() {
+    document.getElementsByTagName('body')[0].style.overflow = null
   },
 }
 </script>
