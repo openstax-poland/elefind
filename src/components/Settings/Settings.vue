@@ -102,7 +102,7 @@ export default {
       if (!selector) return true
 
       const splitAtHas = selector.split(':has')
-      if (splitAtHas.length > 0) {
+      if (selector.match(':has')) {
         if (splitAtHas.length > 2) {
           this.invalidSelectorInformation = {message: 'We do not suppot nested :has selectors.'}
           return false
