@@ -37,6 +37,11 @@
       </div>
       <div class="example">
         <p>
+          Search for .howto elements which contains "Step" text: <strong>.howto:hasText(Step)</strong>
+        </p>
+      </div>
+      <div class="example">
+        <p>
           Search for element which has multiple classes: <strong>.class1.class2</strong>
           <br>
           This selector will find elements which has both: <strong>class1</strong> and <strong>class2</strong>
