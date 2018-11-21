@@ -7,7 +7,7 @@
         v-model="selectedBook" 
         :options="booksList" 
         placeholder="Pick one"
-        label="book_name"
+        :customLabel="labelSelectBook"
         track-by="book_name">
       </multiselect>
     </div>
@@ -97,6 +97,9 @@ export default {
   methods: {
     showTutorial () {
       this.$emit('showTutorial')
+    },
+    labelSelectBook (book) {
+      return book.book_name.replace(/_/g, ' ')
     },
     validateSelector (selector) {
       if (!selector) return true
