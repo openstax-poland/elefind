@@ -25,7 +25,7 @@
         <svg aria-hidden="true" data-prefix="far" data-icon="info-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-info-circle fa-w-16 fa-3x"><path fill="currentColor" d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 448c-110.532 0-200-89.431-200-200 0-110.495 89.472-200 200-200 110.491 0 200 89.471 200 200 0 110.53-89.431 200-200 200zm0-338c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z" class=""></path></svg>
       </div>
       <label>or search for custom css selector</label>
-      <input type="text" v-model="customSelector" placeholder='ex. [data-type="note"] > .title'>
+      <input type="text" class="custom-input" v-model="customSelector" placeholder='ex. [data-type="note"] > .title'>
       <span class="information">{{ invalidSelectorInformation.message }}</span>
     </div>
     <div class="form-group">
@@ -241,91 +241,97 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.title {
-  text-align: left;
-}
-
+<style lang="scss">
 .settings {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-.form-group {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  text-align: left;
-  width: 300px;
-  margin-bottom: 30px;
-  label {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  input {
-    box-sizing: content-box;
-    display: block;
-    position: relative;
-    width: 100%;
-    max-width: 282px;
+
+  .title {
     text-align: left;
-    color: #35495e;
-    border: 1px solid #e8e8e8;
-    border-radius: 5px;
-    padding: 11px 8px;
-    font-size: 14px;
   }
-  .information {
-    opacity: 0;
-    margin-top: 10px;
-    font-size: 14px;
-    color: #e53f3f;
-    transition: 0.3s opacity ease-in-out;
-  }
-  &.error {
+
+  .form-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: left;
+    width: 300px;
+    margin-bottom: 30px;
+    label {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    input.custom-input {
+      box-sizing: content-box;
+      display: block;
+      position: relative;
+      width: 100%;
+      max-width: 282px;
+      text-align: left;
+      color: #35495e;
+      border: 1px solid #e8e8e8;
+      border-radius: 5px;
+      padding: 11px 8px;
+      font-size: 14px;
+    }
     .information {
-      opacity: 1;
+      opacity: 0;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #e53f3f;
+      transition: 0.3s opacity ease-in-out;
+    }
+    &.error {
+      .information {
+        opacity: 1;
+      }
     }
   }
-}
 
-button.send {
-  cursor: pointer;
-  color: #fff;
-  background-color: #28a745;
-  border: none;
-  border-radius: 5px;
-  padding: 12px 0;
-  transition: 0.3s all ease-in-out;
-  &:hover {
-    background-color: #218838;
+  button.send {
+    cursor: pointer;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 0;
+    transition: 0.3s all ease-in-out;
+    &:hover {
+      background-color: #218838;
+    }
+    &:disabled {
+      cursor: not-allowed;
+      color: #333;
+      background-color: #e8e8e8;
+    }
   }
-  &:disabled {
-    cursor: not-allowed;
-    color: #333;
-    background-color: #e8e8e8;
+
+  .success {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #218838;
   }
-}
 
-.success {
-  margin-top: 5px;
-  font-size: 14px;
-  color: #218838;
-}
+  .invalid {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #e53f3f;
+  }
 
-.invalid {
-  margin-top: 5px;
-  font-size: 14px;
-  color: #e53f3f;
-}
+  .show-tutorial {
+    width: 25px;
+    position: absolute;
+    top: 40px;
+    left: -31px;
+    cursor: pointer;
+    color: #bebcbc;
+  }
 
-.show-tutorial {
-  width: 25px;
-  position: absolute;
-  top: 40px;
-  left: -31px;
-  cursor: pointer;
-  color: #bebcbc;
+  .multiselect__element .multiselect__option {
+    white-space: normal;
+    word-wrap: break-word;
+  }
 }
 </style>
