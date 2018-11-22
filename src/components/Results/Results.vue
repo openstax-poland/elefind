@@ -3,8 +3,8 @@
     <div class="title">
       <img v-if="!isLoading && data.thumbnail" :src="data.thumbnail" class="thumbnail">
       <h2 v-if="!isLoading">
-        {{ data.bookName.replace(/_/g, ' ') }} search for: {{ data.element }}
-        <span class="book-info">
+        {{ data.bookName ? data.bookName.replace(/_/g, ' ') : null }} search for: {{ data.element }}
+        <span v-if="data.contentFetchedAt || data.contentFetchedFrom" class="book-info">
           <span>Content fetched at: {{ data.contentFetchedAt }}</span>
           <span>Fetched from: {{ data.contentFetchedFrom }}</span>
           <span>Baked: {{ data.baked }}</span>
