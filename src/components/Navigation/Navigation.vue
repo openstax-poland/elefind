@@ -25,7 +25,7 @@ export default {
     StatusIcon
   },
   beforeCreate () {
-    axios.get('https://content-finder.herokuapp.com/')
+    axios.get('https://content-finder.herokuapp.com/BooksAvaliable')
       .then(() => {
         this.statusServerDefaults = 'active'
       })
