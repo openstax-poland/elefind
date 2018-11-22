@@ -2,7 +2,14 @@
   <div class="results">
     <div class="title">
       <img v-if="!isLoading && data.thumbnail" :src="data.thumbnail" class="thumbnail">
-      <h2 v-if="!isLoading"><status-icon v-if="false" :status="data.status"/> {{ data.bookName }} search for: {{ data.element }}</h2>
+      <h2 v-if="!isLoading">
+        {{ data.bookName.replace(/_/g, ' ') }} search for: {{ data.element }}
+        <span class="book-info">
+          <span>Content fetched at: {{ data.contentFetchedAt }}</span>
+          <span>Fetched from: {{ data.contentFetchedFrom }}</span>
+          <span>Baked: {{ data.baked }}</span>
+        </span>
+      </h2>
       <h2 v-else>Loading...</h2>
     </div>
     <div class="navigation">
@@ -70,16 +77,17 @@ export default {
     width: 100%;
     justify-content: flex-start;
     align-items: center;
+    text-align: left;
     .thumbnail {
       width: 100px;
       margin-right: 10px;
     }
-    .status-icon {
-      margin-right: 10px;
-      width: 20px;
-      svg {
-        width: 20px !important;
-      }
+    .book-info {
+      font-size: 16px;
+      font-weight: 400;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
     }
   }
   .navigation {

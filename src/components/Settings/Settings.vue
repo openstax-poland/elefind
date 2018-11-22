@@ -187,7 +187,10 @@ export default {
             bookName: payload.params.bookName,
             thumbnail: this.selectedBook.book_thumbnail,
             element: payload.params.element,
-            results: res.data.Results
+            results: res.data.Results,
+            baked: typeof res.data.baked === 'boolean' ? res.data.baked : 'undefined',
+            contentFetchedAt: res.data.contentFetchedAt ? res.data.contentFetchedAt : 'undefined',
+            contentFetchedFrom: res.data.contentFetchedFrom ? res.data.contentFetchedFrom : 'undefined',
           }
           this.$store.commit('setResults', data)
 
