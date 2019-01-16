@@ -124,20 +124,7 @@ export default {
     },
     send () {
       if (this.validateForm) {
-        let lastTimeSearch = localStorage.getItem('lastTimeSearch')
-        const now = new Date()
-
-        // user can search for every 2 minutes
-        if (lastTimeSearch) {
-          lastTimeSearch = new Date(lastTimeSearch)
-          if ((now.getTime() - lastTimeSearch.getTime()) < (1000 * 60 * 2)) {
-            this.invalidReason = 'You can start new job every 2 minutes.'
-            return false
-          }
-        }
-
         this.invalidReason = ''
-        console.log('start')
         
         let elementsToSearch = [...this.selectedDefaultSelectors].map(el => el.name)
         elementsToSearch.push(this.customSelector)
@@ -157,8 +144,6 @@ export default {
         setTimeout(() => {
           this.showSuccess = false
         }, 2000)
-
-        localStorage.setItem('lastTimeSearch', now)
       }
     },
     getResults () {
@@ -199,11 +184,16 @@ export default {
             this.showSuccess = false
           }, 2000)
 
-          localStorage.setItem('lastTimeSearch', new Date())
           this.$store.commit('setLoading', false)
         })
         .catch(e => {
-          this.invalidReason = e.response.data ? e.response.data : e.response
+          if (e.response && e.response.data) {
+            this.invalidReason = e.response.data
+          } else if (e.response) {
+            this.invalidReason = e.response
+          } else {
+            this.invalidReason = e
+          }
           setTimeout(() => {
             this.invalidReason = ''
           }, 10000)
