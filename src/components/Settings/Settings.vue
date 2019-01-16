@@ -56,7 +56,7 @@ export default {
       showSuccess: false,
       invalidReason: '',
       selectedBook: '',
-      booksList: [], // async GET
+      booksList: [{book_name:"Astronomy"},{book_name:"Biology_for AP Courses"},{book_name:"Business_Ethics"},{book_name:"Biology_2e"},{book_name:"Chemistry"},{book_name:"Prealgebra"},{book_name:"Principles_of Macroeconomics for AP Courses 2e"},{book_name:"Principles_of Economics 2e"},{book_name:"Elementary_Algebra"},{book_name:"Intermediate_Algebra"},{book_name:"Introduction_to Sociology 2e"},{book_name:"Introductory_Business Statistics"},{book_name:"College_Physics for AP Courses"},{book_name:"Introductory_Statistics"},{book_name:"Introduction_to Business"},{book_name:"Concepts_of Biology"},{book_name:"College_Physics"},{book_name:"University_Physics Volume 1"},{book_name:"Fizyka_dla szkol wyzszych Tom 1"},{book_name:"Chemistry"},{book_name:"American_Government"},{book_name:"Psychology"},{book_name:"College_Algebra"},{book_name:"Calculus_Volume 1"},{book_name:"Microbiology"},{book_name:"US_History"},{book_name:"Applied_Finite Mathematics"},{book_name:"Algonquin_College MAT0032"},{book_name:"Labs_For Collaborative Statistics Teegarden"},{book_name:"Collaborative_Statistics Modified by T Short"},{book_name:"Understanding_Basic Music Theory"},{book_name:"English_Home Language Grade 5"},{book_name:"Human_Anatomy"},{book_name:"Rationality"},{book_name:"KSU_TM College Physics I"},{book_name:"Project_Management"},{book_name:"Anatomy_and Physiology"}], // async GET
       avaliableSearchElements: [], // async GET
       defaultSelectors: [],
       selectedDefaultSelector: '',
