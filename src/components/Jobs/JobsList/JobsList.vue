@@ -5,13 +5,17 @@
         v-for="job in jobs"
         :key="job.id"
         :class="job.status"
-        :title="job.book_name + ' | ' + job.elements.join(', ')"
-        @click="showResults(job.id)"
+        :title="job.book_name.replace(/_/g, ' ') + ' | ' + job.element"
+        @click="showResults(job)"
       >
-        <span class="book-name">{{ job.book_name }}</span>
-        <span class="elements">Search for: {{ job.elements.join(', ') }}</span>
+        <span class="book-name">{{ job.book_name.replace(/_/g, ' ') }}</span>
+        <span class="elements">Search for: {{ job.element }}</span>
+        <span v-if="job.results" class="instances">Found {{ job.results.instances ? job.results.instances : 'unknow' }} instances</span>
+        <span v-if="job.error" class="error-info">
+          Error: {{ job.error }}
+        </span>
         <span class="status">Status: <status-icon :status="job.status"/></span>
-        <span v-if="job.status === 'active'" class="time">Started {{ timeFromStart(job.start_date) }}</span>
+        <span v-if="job.status === 'pending'" class="time">Started {{ timeFromStart(job.start_date) }}</span>
       </li>
     </ul>
   </div>
@@ -35,8 +39,9 @@ export default {
         return `about ${parseInt(s/60)} minute${(s/60) > 1 ? 's' : ''} ago.`
       }
     },
-    showResults (jobId) {
-      this.$emit('showResults', jobId)
+    showResults (job) {
+      if (job.status !== 'ok') return
+      this.$emit('showResults', job.id)
     }
   },
   components: {
@@ -70,7 +75,6 @@ export default {
         max-width: 400px;
         overflow: hidden;
         text-overflow: ellipsis;
-        display: inline-block;
         white-space: nowrap;
       }
       .status {

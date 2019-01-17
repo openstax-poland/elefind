@@ -2,77 +2,72 @@
   <div class="jobs">
     <h2 class="title">Jobs</h2>
     <div class="navigation">
-      <div class="buttons">
-        <button @click="activateTab('queue')" :class="{'active' : activeTab === 'queue'}">Queue</button>
-        <button @click="activateTab('done')" :class="{'active' : activeTab === 'done'}">Done</button>
+      <div class="top-bar">
+        <span
+          @click="showResultsForJob = false"
+          :class="{active: !showResultsForJob}"
+        >
+          Queue
+        </span>
+        <span
+          @click="showResultsForJob = true"
+          :class="{active: showResultsForJob}"
+        >
+          Results
+        </span>
       </div>
-      <div class="legend">
-        <span class="legend-name">Active: </span>
-        <status-icon :status="'active'"/>
+      <div
+        v-if="!showResultsForJob"
+        class="legend"
+      >
+        <span class="legend-name">Legend:</span>
         <span class="legend-name">Pending: </span>
-        <status-icon :status="'pending'"/>
+        <status-icon status="pending"/>
         <span class="legend-name">Done: </span>
-        <status-icon :status="'done'"/>
-        <span class="legend-name">Canceled: </span>
-        <status-icon :status="'canceled'"/>
+        <status-icon status="ok"/>
+        <span class="legend-name">Error: </span>
+        <status-icon status="error"/>
       </div>
     </div>
     <jobs-list
-      v-if="activeTab === 'queue'"
+      v-if="!showResultsForJob"
       :jobs="jobsInQueue"
-      @showResults="showResultsHandler"/>
-    <jobs-list
-      v-if="activeTab === 'done'"
-      :jobs="doneJobs"
-      @showResults="showResultsHandler"/>
+      @showResults="showResultsHandler"
+    />
+    <results
+      v-if="showResultsForJob"
+    />
   </div>
 </template>
 
 <script>
 import JobsList from './JobsList/JobsList'
 import StatusIcon from './StatusIcon/StatusIcon'
+import Results from '../Results/Results'
 import { mapGetters } from 'vuex'
-import axios from 'axios'
 
 export default {
   data () {
     return {
-      activeTab: 'queue',
-      currentQue: [], // async GET
+      showResultsForJob: false,
     }
   },
   computed: {
     ...mapGetters({
       'jobsInQueue': 'getJobsInQueue',
-      'doneJobs': 'getDoneJobs'
     })
   },
   methods: {
-    activateTab (tabName) {
-      this.activeTab = tabName
-    },
     showResultsHandler (jobId) {
-      this.$emit('showResults', jobId)
+      this.$store.commit('setResultsByJobId', jobId)
+      this.showResultsForJob = true
     },
   },
   components: {
     JobsList,
     StatusIcon,
+    Results,
   },
-  beforeCreate() {
-    const config = {
-      responseType: 'json'
-    }
-
-    axios.get('https://content-finder.herokuapp.com/API/CurrentQue.do', config)
-      .then(res => {
-        return this.currentQue = res.data.Books
-      })
-      .catch(e => {
-        console.log('error:',e)
-        return e
-      })
-  }
 }
 </script>
 
@@ -85,14 +80,18 @@ export default {
   .navigation {
     display: flex;
     justify-content: space-between;
-    .buttons {
-      button {
+    .top-bar {
+      span {
+        display: inline-block;
         cursor: pointer;
-        background-color: transparent;
         border: none;
         padding: 20px;
+        background-color: transparent;
         &.active {
           font-weight: bold;
+          background-color: #f2f2f2;
+        }
+        &:hover {
           background-color: #f2f2f2;
         }
       }

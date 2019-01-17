@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -7,71 +8,7 @@ export default new Vuex.Store({
   state: {
     isLoading: false,
     results: {},
-    jobs: [
-      {
-        id: 0,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'active',
-        book_id: 'book id',
-        book_name: 'Algebra',
-        elements: ['footnotes', 'tables', '.os-example', '.logclassnamewichforcescroll']
-      },
-      {
-        id: 1,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'done',
-        book_id: 'book id',
-        book_name: 'Biology 2e',
-        elements: ['span.title']
-      },
-      {
-        id: 2,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'pending',
-        book_id: 'book id',
-        book_name: 'Biology',
-        elements: ['[data-type="warning"]']
-      },
-      {
-        id: 3,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'pending',
-        book_id: 'book id',
-        book_name: 'Chemistry',
-        elements: ['[data-type="note"]']
-      },
-      {
-        id: 4,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'done',
-        book_id: 'book id',
-        book_name: 'University Physics Volume 2',
-        elements: ['.solution']
-      },
-      {
-        id: 5,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'pending',
-        book_id: 'book id',
-        book_name: 'Fizyka dla szkół wyższych Tom 1',
-        elements: ['footnotes']
-      },
-      {
-        id: 6,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'done',
-        book_id: 'book id',
-        book_name: 'The AP Physics Collection',
-        elements: ['.os-table']
-      }
-    ]
+    jobs: [],
   },
   getters: {
     isLoading (state) {
@@ -99,121 +36,146 @@ export default new Vuex.Store({
       return state.jobs
     },
     getJobsInQueue (state) {
-      return state.jobs.filter(job => {
-        if (job.status === 'pending' || job.status === 'active') {
-          return job
-        }
-      })
+      return state.jobs
     },
-    getDoneJobs (state) {
-      return state.jobs.filter(job => {
-        if (job.status === 'done') {
-          return job
-        }
-      })
-    }
   },
   mutations: {
+    clearJobsAndResults (state) {
+      state.results = {}
+      state.jobs = []
+    },
     setResults (state, payload) {
       state.results = payload
     },
-    addNewJob (state, payload) {
-      console.log('add new job')
-      const newJob = {
-        id: state.jobs.length,
-        start_date: new Date(),
-        end_date: new Date(),
-        status: 'pending',
-        ...payload
+    setResultsByJobId (state, jobId) {
+      const job = state.jobs.find(job => {
+        if (job.id === jobId) {
+          return true
+        }
+        return false
+      })
+      
+      if (job) {
+        state.results = job.results
+      } else {
+        state.results = {}
       }
-      console.log(newJob)
+    },
+    addNewJob (state, payload) {
+      const newJob = {
+        id: payload.id,
+        book_name: payload.book_name,
+        element: payload.element,
+        start_date: new Date(),
+        status: 'pending',
+      }
       state.jobs.push(newJob)
+    },
+    updateJob (state, {jobId, results, err}) {
+      state.jobs = state.jobs.map(job => {
+        if (job.id === jobId) {
+          if (err) {
+            let errMsg = ''
+            if (err.response && err.response.data) {
+              errMsg = err.response.data
+            } else if (err.response) {
+              errMsg = err.response
+            } else {
+              errMsg = err
+            }
+            return {
+              ...job,
+              end_date: new Date(),
+              status: 'error',
+              error: errMsg,
+            }
+          }
+
+          let instances = 0
+          if (results.results) {
+            results.results.forEach(el => {
+              if (el.instances) {
+                instances += Number(el.instances)
+              } else {
+                instances++
+              }
+            })
+          }
+
+          let updateJob = {
+            ...job,
+            end_date: new Date(),
+            status: 'ok',
+            results: {
+              instances,
+              ...results,
+            },
+          }
+          return updateJob
+        }
+        return job
+      })
     },
     setLoading (state, status) {
       state.isLoading = status
     }
   },
   actions: {
-    postNewJob ({commit}, payload) {
-      // API POST
-      commit('addNewJob', payload)
-    },
-    getJobResults ({commit}, jobId) {
-      // API GET
-      return {
-        id: 0,
-        book_id: 'book id',
-        book_name: 'Algebra',
-        status: 'done',
-        elements: ['footnotes', 'tables', '.os-example'],
-        results: [
-          {
-            element: 'footnote',
-            module: 'Module 1',
-            link: 'https://cnx.org/contents/kluwbu24ibvSEG34SCsv5'
-          },
-          {
-            element: 'footnote',
-            module: 'Module 3',
-            link: 'https://cnx.org/contents/9836unfkvj24ibvSEG34SCsw435'
-          },
-          {
-            element: 'footnote',
-            module: 'Module 6',
-            link: 'https://cnx.org/contents/gfbh09675bhbu24ib64nbv'
-          },
-          {
-            element: 'tables',
-            module: 'Module 1',
-            link: 'https://cnx.org/contents/zxcbv24ibert5'
-          },
-          {
-            element: 'tables',
-            module: 'Module 1',
-            link: 'https://cnx.org/contents/kwetrbu24ibvSEG34Srtyryuryury'
-          },
-          {
-            element: 'tables',
-            module: 'Module 2',
-            link: 'https://cnx.org/contents/689hj24ibvSEG34SCsrtu5'
-          },
-          {
-            element: 'tables',
-            module: 'Module 8',
-            link: 'https://cnx.org/contents/GHsdfmcJretvvuxiZD'
-          },
-          {
-            element: 'tables',
-            module: 'Module 9',
-            link: 'https://cnx.org/contents/c2i3herkjnfdg5e6767'
-          },
-          {
-            element: '.os-example',
-            module: 'Module 2',
-            link: 'https://cnx.org/contents/jkdshf8740hgfmlDFB%N&vdzy'
-          },
-          {
-            element: '.os-example',
-            module: 'Module 12',
-            link: 'https://cnx.org/contents/klvfdps090546njdsfg'
-          },
-          {
-            element: '.os-example',
-            module: 'Module 16',
-            link: 'https://cnx.org/contents/dsafgkbuiq34ter87vjfhdnv'
-          },
-          {
-            element: '.os-example',
-            module: 'Module 17',
-            link: 'https://cnx.org/contents/fkdlnu3ynvfbd'
-          },
-          {
-            element: '.os-example',
-            module: 'Module 1d',
-            link: 'https://cnx.org/contents/jvcbxopwoigfs'
-          },
-        ]
+    async fetchMultipleResults ({commit, dispatch}, {books, element}) {
+      for (const book of books) {
+        const jobId = book.book_name + new Date().toISOString()
+        const jobData = {
+          id: jobId,
+          book_name: book.book_name,
+          element,
+        }
+        commit('addNewJob', jobData)
+        let err = null
+        const results = await dispatch('getResults', {book, element, isCustomSelector: true})
+          .then(res => res)
+          .catch(e => {
+            err = e
+          })
+        commit('updateJob', {jobId, results, err})
       }
+    },
+    getResults (_, { book, element, isCustomSelector = true }) {
+      return new Promise((resolve, reject) => {
+        const payload = {
+          config: {
+            responseType: 'json'
+          },
+          params: {
+            bookName: book.book_name,
+            element: element
+          }
+        }
+  
+        const customElementsEndpoint = process.env.NODE_ENV === 'development' ?
+        'http://localhost:3000/elements' :
+        'https://elefind.naukosfera.com/elements'
+  
+        const defaultSelectorsEndpoint = 'https://content-finder.herokuapp.com/API/GetElementsNonCustom.do'
+
+        const link = isCustomSelector ? customElementsEndpoint : defaultSelectorsEndpoint
+
+        axios.get(link, payload)
+          .then(res => {
+            const data = {
+              bookName: payload.params.bookName,
+              thumbnail: book.book_thumbnail,
+              element: payload.params.element,
+              results: res.data.Results,
+              baked: typeof res.data.baked === 'boolean' ? res.data.baked : 'undefined',
+              contentFetchedAt: res.data.contentFetchedAt ? res.data.contentFetchedAt : 'undefined',
+              contentFetchedFrom: res.data.contentFetchedFrom ? res.data.contentFetchedFrom : 'undefined',
+            }
+            resolve(data)
+          })
+          .catch(e => {
+            reject(e)
+          })
+      })
     }
   }
 })

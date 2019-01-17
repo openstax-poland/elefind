@@ -27,7 +27,7 @@ export default {
   beforeCreate () {
     axios.get('https://content-finder.herokuapp.com/BooksAvaliable')
       .then(() => {
-        this.statusServerDefaults = 'active'
+        this.statusServerDefaults = 'ok'
       })
       .catch(e => {
         console.log(e)
@@ -36,7 +36,7 @@ export default {
 
     axios.get('https://elefind.naukosfera.com/')
       .then(() => {
-        this.statusServerCustom = 'active'
+        this.statusServerCustom = 'ok'
       })
       .catch(e => {
         console.log(e)

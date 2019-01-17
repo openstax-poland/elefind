@@ -2,13 +2,28 @@
   <div class="settings">
     <h2 class="title">Settings</h2>
     <div class="form-group">
-      <label>Select a book</label>
-      <multiselect 
-        v-model="selectedBook" 
+      <label>Search trough all books</label>
+      <multiselect
+        v-model="searchAllBooks"
+        :options="[{label: 'Yes', value: true}, {label: 'No', value: false}]"
+        track-by="label"
+        label="label"
+        :allow-empty="false"
+        :searchable="false"
+      />
+    </div>
+    <div v-if="!searchAllBooks.value" class="form-group">
+      <label>Select books</label>
+      <multiselect
+        v-model="selectedBooks" 
         :options="booksList" 
-        placeholder="Pick one"
+        placeholder="Pick one or few"
         :customLabel="labelSelectBook"
-        track-by="book_name">
+        track-by="book_name"
+        :multiple="true"
+        :close-on-select="false"
+        :clear-on-select="false"
+      >
       </multiselect>
     </div>
     <div class="form-group">
@@ -17,7 +32,7 @@
         v-model="selectedDefaultSelector"
         :options="defaultSelectors"
         placeholder="Pick one"
-        :disabled="(selectedBook && !customSelector) ? false : true">
+        :disabled="(selectedBooks.length === 1 && !customSelector) ? false : true">
       </multiselect>
     </div>
     <div class="form-group" :class="{'error': !isValidSelector}">
@@ -49,14 +64,16 @@
 import Multiselect from 'vue-multiselect'
 import axios from 'axios'
 import { mapGetters } from 'vuex'
+import { setTimeout } from 'timers';
 
 export default {
   data () {
     return {
       showSuccess: false,
       invalidReason: '',
-      selectedBook: '',
-      booksList: [{book_name:"Astronomy"},{book_name:"Biology_for AP Courses"},{book_name:"Business_Ethics"},{book_name:"Biology_2e"},{book_name:"Chemistry"},{book_name:"Prealgebra"},{book_name:"Principles_of Macroeconomics for AP Courses 2e"},{book_name:"Principles_of Economics 2e"},{book_name:"Elementary_Algebra"},{book_name:"Intermediate_Algebra"},{book_name:"Introduction_to Sociology 2e"},{book_name:"Introductory_Business Statistics"},{book_name:"College_Physics for AP Courses"},{book_name:"Introductory_Statistics"},{book_name:"Introduction_to Business"},{book_name:"Concepts_of Biology"},{book_name:"College_Physics"},{book_name:"University_Physics Volume 1"},{book_name:"Fizyka_dla szkol wyzszych Tom 1"},{book_name:"Chemistry"},{book_name:"American_Government"},{book_name:"Psychology"},{book_name:"College_Algebra"},{book_name:"Calculus_Volume 1"},{book_name:"Microbiology"},{book_name:"US_History"},{book_name:"Applied_Finite Mathematics"},{book_name:"Algonquin_College MAT0032"},{book_name:"Labs_For Collaborative Statistics Teegarden"},{book_name:"Collaborative_Statistics Modified by T Short"},{book_name:"Understanding_Basic Music Theory"},{book_name:"English_Home Language Grade 5"},{book_name:"Human_Anatomy"},{book_name:"Rationality"},{book_name:"KSU_TM College Physics I"},{book_name:"Project_Management"},{book_name:"Anatomy_and Physiology"}], // async GET
+      searchAllBooks: {label: 'Yes', value: true},
+      selectedBooks: [],
+      booksList: [{book_name:"Astronomy"},{book_name:"Biology_for_AP_Courses"},{book_name:"Business_Ethics"},{book_name:"Biology_2e"},{book_name:"Chemistry"},{book_name:"Prealgebra"},{book_name:"Principles_of_Macroeconomics_for_AP_Courses 2e"},{book_name:"Principles_of_Economics_2e"},{book_name:"Elementary_Algebra"},{book_name:"Intermediate_Algebra"},{book_name:"Introduction_to_Sociology_2e"},{book_name:"Introductory_Business_Statistics"},{book_name:"College_Physics_for_AP_Courses"},{book_name:"Introductory_Statistics"},{book_name:"Introduction_to_Business"},{book_name:"Concepts_of_Biology"},{book_name:"College_Physics"},{book_name:"University_Physics_Volume_1"},{book_name:"Fizyka_dla_szkol_wyzszych_Tom_1"},{book_name:"Chemistry"},{book_name:"American_Government"},{book_name:"Psychology"},{book_name:"College_Algebra"},{book_name:"Calculus_Volume_1"},{book_name:"Microbiology"},{book_name:"US_History"},{book_name:"Applied_Finite_Mathematics"},{book_name:"Algonquin_College_MAT0032"},{book_name:"Labs_For_Collaborative_Statistics_Teegarden"},{book_name:"Collaborative_Statistics_Modified_by_T_Short"},{book_name:"Understanding_Basic_Music_Theory"},{book_name:"English_Home_Language_Grade_5"},{book_name:"Human_Anatomy"},{book_name:"Rationality"},{book_name:"KSU_TM_College_Physics_I"},{book_name:"Project_Management"},{book_name:"Anatomy_and_Physiology"}], // async GET
       avaliableSearchElements: [], // async GET
       defaultSelectors: [],
       selectedDefaultSelector: '',
@@ -66,12 +83,14 @@ export default {
     }
   },
   watch: {
-    selectedBook (book) {
-      this.avaliableSearchElements.forEach(el => {
-        if (el.book_name === book.book_name) {
-          this.defaultSelectors = el.elements[0] === null ? [] : el.elements
-        }
-      })
+    selectedBooks (books) {
+      if (books.length === 1) {
+        this.avaliableSearchElements.forEach(el => {
+          if (el.book_name === books[0].book_name) {
+            this.defaultSelectors = el.elements[0] === null ? [] : el.elements
+          }
+        })
+      }
     },
     customSelector (val) {
       const isValid = this.validateSelector(val)
@@ -88,7 +107,7 @@ export default {
       isLoading: 'isLoading',
     }),
     validateForm () {
-      if (this.isValidSelector && this.selectedBook && (this.selectedDefaultSelector || this.customSelector)) {
+      if (this.isValidSelector && (this.selectedBooks.length || this.searchAllBooks.value) && (this.selectedDefaultSelector || this.customSelector)) {
         return true
       }
       return false
@@ -122,89 +141,72 @@ export default {
 
       return false
     },
-    send () {
-      if (this.validateForm) {
-        this.invalidReason = ''
-        
-        let elementsToSearch = [...this.selectedDefaultSelectors].map(el => el.name)
-        elementsToSearch.push(this.customSelector)
-
-        this.selectedBooks.forEach(book => {
-          const newJob = {
-            book_id: 'book_id',
-            book_name: book.name,
-            elements: elementsToSearch
-          }
-          this.$store.commit('addNewJob', newJob)
-        })
-
-        this.clearForm()
-        this.$emit('showJobs')
-        this.showSuccess = true
-        setTimeout(() => {
-          this.showSuccess = false
-        }, 2000)
+    showSuccessMessage () {
+      this.showSuccess = true
+      setTimeout(() => {
+        this.showSuccess = false
+      }, 2000)
+    },
+    showErrorMessage (e) {
+      this.showSuccess = false
+      if (e.response && e.response.data) {
+        this.invalidReason = e.response.data
+      } else if (e.response) {
+        this.invalidReason = e.response
+      } else {
+        this.invalidReason = e
       }
+      setTimeout(() => {
+        this.invalidReason = ''
+      }, 8000)
     },
     getResults () {
-      this.$store.commit('setLoading', true)
+      if (!this.validateForm) return
       
-      const payload = {
-        config: {
-          responseType: 'json'
-        },
-        params: {
-          bookName: this.selectedBook.book_name,
-          element: this.customSelector ? this.customSelector : this.selectedDefaultSelector
-        }
+      if (this.searchAllBooks.value || this.selectedBooks.length > 1) {
+        return this.getMultipleResults()
       }
 
-      const customElementsEndpoint = process.env.NODE_ENV === 'development' ?
-      'http://localhost:3000/elements' :
-      'https://elefind.naukosfera.com/elements'
+      this.$emit('toggleShowJobs', false)
+      this.$store.commit('setLoading', true)
 
-      const link = this.customSelector ? 
-      customElementsEndpoint : 'https://content-finder.herokuapp.com/API/GetElementsNonCustom.do'
+      const book = this.selectedBooks[0]
+      const payload = {
+        book, 
+        element: this.customSelector ? this.customSelector : this.selectedDefaultSelector,
+        isCustomSelector: this.customSelector ? true : false,
+      }
 
-      axios.get(link, payload)
+      this.$store.dispatch('getResults', payload)
         .then(res => {
-          const data = {
-            bookName: payload.params.bookName,
-            thumbnail: this.selectedBook.book_thumbnail,
-            element: payload.params.element,
-            results: res.data.Results,
-            baked: typeof res.data.baked === 'boolean' ? res.data.baked : 'undefined',
-            contentFetchedAt: res.data.contentFetchedAt ? res.data.contentFetchedAt : 'undefined',
-            contentFetchedFrom: res.data.contentFetchedFrom ? res.data.contentFetchedFrom : 'undefined',
-          }
-          this.$store.commit('setResults', data)
-
-          this.showSuccess = true
-          setTimeout(() => {
-            this.showSuccess = false
-          }, 2000)
-
+          this.$store.commit('setResults', res)
+          this.showSuccessMessage()
           this.$store.commit('setLoading', false)
         })
         .catch(e => {
-          if (e.response && e.response.data) {
-            this.invalidReason = e.response.data
-          } else if (e.response) {
-            this.invalidReason = e.response
-          } else {
-            this.invalidReason = e
-          }
-          setTimeout(() => {
-            this.invalidReason = ''
-          }, 10000)
-
+          this.showErrorMessage(e)
           return this.$store.commit('setLoading', false)
         })
     },
+    getMultipleResults () {
+      if (!this.validateForm) return
+
+      this.$store.commit('clearJobsAndResults')
+      this.$emit('toggleShowJobs', true)
+
+      const payload = {
+        books: this.searchAllBooks.value ? this.booksList : this.selectedBooks,
+        element: this.customSelector,
+      }
+
+      this.$store.dispatch('fetchMultipleResults', payload)
+    },
     clearForm () {
-      this.selectedBook = ''
+      this.selectedBooks = []
       this.selectedDefaultSelector = ''
       this.customSelector = ''
+      this.invalidReason = ''
+      this.showSuccess = false
     }
   },
   components: {
