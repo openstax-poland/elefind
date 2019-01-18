@@ -5,7 +5,7 @@ import axios from 'axios'
 Vue.use(Vuex)
 
 const timeout = (ms) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _) => {
     setTimeout(() => {resolve()}, ms)
   })
 }
