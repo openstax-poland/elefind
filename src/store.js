@@ -4,6 +4,12 @@ import axios from 'axios'
 
 Vue.use(Vuex)
 
+const timeout = (ms) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {resolve()}, ms)
+  })
+}
+
 export default new Vuex.Store({
   state: {
     isLoading: false,
@@ -71,6 +77,19 @@ export default new Vuex.Store({
       }
       state.jobs.push(newJob)
     },
+    restartJob (state, payload) {
+      const jobIndex = state.jobs.findIndex(job => job.id === payload.id)
+
+      if (jobIndex > -1) {
+        state.jobs[jobIndex] = {
+          id: payload.id,
+          book_name: payload.book_name,
+          element: payload.element,
+          start_date: new Date(),
+          status: 'pending',
+        }
+      }
+    },
     updateJob (state, {jobId, results, err}) {
       state.jobs = state.jobs.map(job => {
         if (job.id === jobId) {
@@ -130,6 +149,7 @@ export default new Vuex.Store({
           element,
         }
         commit('addNewJob', jobData)
+        await timeout(300)
         let err = null
         const results = await dispatch('getResults', {book, element, isCustomSelector: true})
           .then(res => res)
@@ -176,6 +196,25 @@ export default new Vuex.Store({
             reject(e)
           })
       })
+    },
+    async refreshJob ({commit, dispatch}, job) {
+      if (!job) {
+        throw new Error('You have to provide job.')
+      }
+
+      commit('restartJob', job)
+      let err = null
+      const payload = {
+        book: {book_name: job.book_name},
+        element: job.element,
+        isCustomSelector: true,
+      }
+      const results = await dispatch('getResults', payload)
+        .then(res => res)
+        .catch(e => {
+          err = e
+        })
+      commit('updateJob', {jobId: job.id, results, err})
     }
   }
 })

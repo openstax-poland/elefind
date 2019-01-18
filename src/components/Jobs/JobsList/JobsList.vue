@@ -6,16 +6,41 @@
         :key="job.id"
         :class="job.status"
         :title="job.book_name.replace(/_/g, ' ') + ' | ' + job.element"
-        @click="showResults(job)"
+        @click="handleJobClick(job)"
       >
-        <span class="book-name">{{ job.book_name.replace(/_/g, ' ') }}</span>
-        <span class="elements">Search for: {{ job.element }}</span>
-        <span v-if="job.results" class="instances">Found {{ job.results.instances ? job.results.instances : 'unknow' }} instances</span>
-        <span v-if="job.error" class="error-info">
+        <span
+          class="book-name"
+        >
+          {{ job.book_name.replace(/_/g, ' ') }}
+        </span>
+        <span
+          class="elements"
+        >
+          Search for: {{ job.element }}
+        </span>
+        <span
+          v-if="job.results"
+          class="instances"
+        >
+          Found {{ typeof job.results.instances === 'number' ? job.results.instances : 'unknow' }} instances
+        </span>
+        <span
+          v-if="job.error"
+          class="error-info"
+        >
           Error: {{ job.error }}
         </span>
-        <span class="status">Status: <status-icon :status="job.status"/></span>
-        <span v-if="job.status === 'pending'" class="time">Started {{ timeFromStart(job.start_date) }}</span>
+        <span
+          class="status"
+        >
+          Status: <status-icon :status="job.status"/>
+        </span>
+        <span
+          v-if="job.status === 'pending'"
+          class="time"
+        >
+          Started {{ timeFromStart(job.start_date) }}
+        </span>
       </li>
     </ul>
   </div>
@@ -39,9 +64,12 @@ export default {
         return `about ${parseInt(s/60)} minute${(s/60) > 1 ? 's' : ''} ago.`
       }
     },
-    showResults (job) {
-      if (job.status !== 'ok') return
-      this.$emit('showResults', job.id)
+    handleJobClick (job) {
+      if (job.status === 'ok') {
+        this.$emit('showResults', job.id)
+      } else if (job.status === 'error') {
+        this.$store.dispatch('refreshJob', job)
+      }
     }
   },
   components: {

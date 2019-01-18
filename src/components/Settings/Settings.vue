@@ -26,7 +26,7 @@
       >
       </multiselect>
     </div>
-    <div class="form-group">
+    <div v-if="!searchAllBooks.value && this.selectedBooks.length <= 1" class="form-group">
       <label>Select element that you need to find</label>
       <multiselect
         v-model="selectedDefaultSelector"
