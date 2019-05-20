@@ -28,7 +28,7 @@
           v-if="job.error"
           class="error-info"
         >
-          Error: {{ job.error }}
+          Error: {{ job.error }} Click here to restart.
         </span>
         <span
           class="status"
