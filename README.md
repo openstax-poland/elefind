@@ -4,7 +4,7 @@ Content finder will find every place of your choice in selected book and provide
 
 http://content-finder.herokuapp.com/
 
-Backend: https://github.com/PiotrKozlowski/elefind-go
+Backend: https://github.com/katalysteducation/elefind-go
 
 ## How to search for custom elements
 
