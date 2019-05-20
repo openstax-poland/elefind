@@ -195,6 +195,7 @@ export default {
 
       this.$store.commit('clearJobsAndResults')
       this.$emit('toggleShowJobs', true)
+      this.$store.commit('setLoading', true)
 
       const payload = {
         books: this.searchAllBooks.value ? this.booksList : this.selectedBooks,
