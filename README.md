@@ -4,6 +4,8 @@ Content finder will find every place of your choice in selected book and provide
 
 http://content-finder.herokuapp.com/
 
+Backend: https://github.com/PiotrKozlowski/elefind-go
+
 ## How to search for custom elements
 
 To target specific elements in book we use css selectors. Detailed article about them - https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
