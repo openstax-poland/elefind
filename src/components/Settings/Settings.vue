@@ -50,6 +50,13 @@
         :disabled="!validateForm || isLoading">
         Get results
       </button>
+      <button
+        v-if="isLoading"
+        @click="reset()" 
+        class="reset" 
+      >
+        Cancel and reset
+      </button>
       <transition name="fade" mode="out-in">
         <span v-if="showSuccess" class="success">Success</span>
       </transition>
@@ -212,7 +219,10 @@ export default {
       this.customSelector = ''
       this.invalidReason = ''
       this.showSuccess = false
-    }
+    },
+    reset () {
+      window.location = '/'
+    },
   },
   components: {
     Multiselect,
@@ -314,7 +324,7 @@ export default {
     }
   }
 
-  button.send {
+  button.send, button.reset {
     cursor: pointer;
     color: #fff;
     background-color: #28a745;
@@ -329,6 +339,14 @@ export default {
       cursor: not-allowed;
       color: #333;
       background-color: #e8e8e8;
+    }
+  }
+
+  button.reset {
+    margin-top: 10px;
+    background-color: rgb(15, 42, 78);
+    &:hover {
+      background-color: rgb(9, 23, 43);
     }
   }
 

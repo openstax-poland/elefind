@@ -158,6 +158,7 @@ export default new Vuex.Store({
           })
         commit('updateJob', {jobId, results, err})
       }
+      commit('setLoading', false)
     },
     getResults (_, { book, element, isCustomSelector = true }) {
       return new Promise((resolve, reject) => {
