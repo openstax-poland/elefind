@@ -43,6 +43,15 @@ export default {
     }
   }
 
+  .legend {
+    .pending {
+      svg {
+        transform: none;
+        -webkit-animation-duration: 0s;
+      }
+    }
+  }
+
   .error {
     svg > *{
       fill: red;
