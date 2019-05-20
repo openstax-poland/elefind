@@ -177,6 +177,8 @@ export default {
         isCustomSelector: this.customSelector ? true : false,
       }
 
+      this.$router.push(`?book=${payload.book.book_name}&element=${payload.element}`)
+
       this.$store.dispatch('getResults', payload)
         .then(res => {
           this.$store.commit('setResults', res)
@@ -198,6 +200,8 @@ export default {
         books: this.searchAllBooks.value ? this.booksList : this.selectedBooks,
         element: this.customSelector,
       }
+
+      this.$router.push(`?books=${this.searchAllBooks.value ? 'all' : payload.books.map(b => b.book_name).toString()}&element=${payload.element}`)
 
       this.$store.dispatch('fetchMultipleResults', payload)
     },
@@ -232,6 +236,30 @@ export default {
       .catch(e => {
         return e
       })
+  },
+  created() {
+    const book = this.$route.query.book
+    const books = this.$route.query.books
+    const element = this.$route.query.element
+
+    if (element) {
+      this.customSelector = element
+    }
+    if (book) {
+      this.searchAllBooks = {label: 'No', value: false}
+      this.selectedBooks = [{book_name: book}]
+    } else if (books) {
+      if (books === 'all') {
+        this.searchAllBooks = {label: 'Yes', value: true}
+        this.selectedBooks = []
+      } else {
+        this.searchAllBooks = {label: 'No', value: false}
+        this.selectedBooks = books.split(',').map(bName => { 
+          return { book_name: bName }
+        })
+      }
+    }
+    this.getResults()
   }
 }
 </script>
