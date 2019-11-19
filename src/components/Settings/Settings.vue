@@ -15,8 +15,8 @@
     <div v-if="!searchAllBooks.value" class="form-group">
       <label>Select books</label>
       <multiselect
-        v-model="selectedBooks" 
-        :options="booksList" 
+        v-model="selectedBooks"
+        :options="booksList"
         placeholder="Pick one or few"
         :customLabel="labelSelectBook"
         track-by="book_name"
@@ -26,34 +26,25 @@
       >
       </multiselect>
     </div>
-    <div v-if="!searchAllBooks.value && this.selectedBooks.length <= 1" class="form-group">
-      <label>Select element that you need to find</label>
-      <multiselect
-        v-model="selectedDefaultSelector"
-        :options="defaultSelectors"
-        placeholder="Pick one"
-        :disabled="(selectedBooks.length === 1 && !customSelector) ? false : true">
-      </multiselect>
-    </div>
     <div class="form-group" :class="{'error': !isValidSelector}">
       <div class="show-tutorial" title="Show tutorial" @click="showTutorial">
         <svg aria-hidden="true" data-prefix="far" data-icon="info-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-info-circle fa-w-16 fa-3x"><path fill="currentColor" d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 448c-110.532 0-200-89.431-200-200 0-110.495 89.472-200 200-200 110.491 0 200 89.471 200 200 0 110.53-89.431 200-200 200zm0-338c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z" class=""></path></svg>
       </div>
-      <label>or search for custom css selector</label>
+      <label>Search for custom css selector</label>
       <input type="text" class="custom-input" v-model="customSelector" placeholder='ex: .class-name #id [data-type="note"]'>
       <span class="information">{{ invalidSelectorInformation.message }}</span>
     </div>
     <div class="form-group">
-      <button 
-        @click="getResults()" 
-        class="send" 
+      <button
+        @click="getResults()"
+        class="send"
         :disabled="!validateForm || isLoading">
         Get results
       </button>
       <button
         v-if="isLoading"
-        @click="reset()" 
-        class="reset" 
+        @click="reset()"
+        class="reset"
       >
         Cancel and reset
       </button>
@@ -69,36 +60,70 @@
 
 <script>
 import Multiselect from 'vue-multiselect'
-import axios from 'axios'
 import { mapGetters } from 'vuex'
-import { setTimeout } from 'timers';
+import { setTimeout } from 'timers'
 
 export default {
   data () {
     return {
       showSuccess: false,
       invalidReason: '',
-      searchAllBooks: {label: 'Yes', value: true},
+      searchAllBooks: { label: 'Yes', value: true },
       selectedBooks: [],
-      booksList: [{book_name:"Astronomy"},{book_name:"Biology_for_AP_Courses"},{book_name:"Business_Ethics"},{book_name:"Biology_2e"},{book_name:"Chemistry"},{book_name:"Prealgebra"},{book_name:"Principles_of_Macroeconomics_for_AP_Courses 2e"},{book_name:"Principles_of_Economics_2e"},{book_name:"Elementary_Algebra"},{book_name:"Intermediate_Algebra"},{book_name:"Introduction_to_Sociology_2e"},{book_name:"Introductory_Business_Statistics"},{book_name:"College_Physics_for_AP_Courses"},{book_name:"Introductory_Statistics"},{book_name:"Introduction_to_Business"},{book_name:"Concepts_of_Biology"},{book_name:"College_Physics"},{book_name:"University_Physics_Volume_1"},{book_name:"Fizyka_dla_szkol_wyzszych_Tom_1"},{book_name:"Chemistry"},{book_name:"American_Government"},{book_name:"Psychology"},{book_name:"College_Algebra"},{book_name:"Calculus_Volume_1"},{book_name:"Microbiology"},{book_name:"US_History"},{book_name:"Applied_Finite_Mathematics"},{book_name:"Algonquin_College_MAT0032"},{book_name:"Labs_For_Collaborative_Statistics_Teegarden"},{book_name:"Collaborative_Statistics_Modified_by_T_Short"},{book_name:"Understanding_Basic_Music_Theory"},{book_name:"English_Home_Language_Grade_5"},{book_name:"Human_Anatomy"},{book_name:"Rationality"},{book_name:"KSU_TM_College_Physics_I"},{book_name:"Project_Management"},{book_name:"Anatomy_and_Physiology"}], // async GET
-      avaliableSearchElements: [], // async GET
-      defaultSelectors: [],
-      selectedDefaultSelector: '',
+      booksList: [
+        { book_name: "Algebra and Trigonometry" },
+        { book_name: "American Government" },
+        { book_name: "Anatomy and Physiology" },
+        { book_name: "Algonquin College MAT0032" },
+        { book_name: "Applied Finite Mathematics" },
+        { book_name: "College Physics for AP Courses" },
+        { book_name: "Astronomy" },
+        { book_name: "Biology" },
+        { book_name: "Biology for AP Courses" },
+        { book_name: "Biology 2e" },
+        { book_name: "Business Ethics" },
+        { book_name: "Calculus Volume 1" },
+        { book_name: "Calculus Volume 2" },
+        { book_name: "Calculus Volume 3" },
+        { book_name: "Chemistry" },
+        { book_name: "Collaborative Statistics Modified by T Short" },
+        { book_name: "Labs For Collaborative Statistics Teegarden" },
+        { book_name: "College Algebra" },
+        { book_name: "College Physics" },
+        { book_name: "Concepts of Biology" },
+        { book_name: "Elementary Algebra" },
+        { book_name: "English Home Language Grade 5" },
+        { book_name: "Human Anatomy" },
+        { book_name: "KSU TM College Physics I" },
+        { book_name: "Microbiology" },
+        { book_name: "Intermediate Algebra" },
+        { book_name: "Introductory Statistics" },
+        { book_name: "Introduction to Business" },
+        { book_name: "Introductory Business Statistics" },
+        { book_name: "Prealgebra" },
+        { book_name: "Precalculus" },
+        { book_name: "Principles of Accounting, Volume 1: Financial Accounting" },
+        { book_name: "Principles of Economics 2e" },
+        { book_name: "Principles of Macroeconomics 2e" },
+        { book_name: "Principles of Macroeconomics for AP Courses 2e" },
+        { book_name: "Principles of Microeconomics 2e" },
+        { book_name: "Principles of Microeconomics for AP Courses 2e" },
+        { book_name: "Project Management" },
+        { book_name: "Psychology" },
+        { book_name: "Fizyka dla szkol wyzszych Tom 1" },
+        { book_name: "Rationality" },
+        { book_name: "Introduction to Sociology" },
+        { book_name: "Introduction to Sociology 2e" },
+        { book_name: "Understanding Basic Music Theory" },
+        { book_name: "University Physics Volume 1" },
+        { book_name: "US History" },
+      ],
       customSelector: '',
       isValidSelector: true,
       invalidSelectorInformation: ''
     }
   },
   watch: {
-    selectedBooks (books) {
-      if (books.length === 1) {
-        this.avaliableSearchElements.forEach(el => {
-          if (el.book_name === books[0].book_name) {
-            this.defaultSelectors = el.elements[0] === null ? [] : el.elements
-          }
-        })
-      }
-    },
     customSelector (val) {
       const isValid = this.validateSelector(val)
       if (this.isValidSelector !== isValid) {
@@ -114,7 +139,11 @@ export default {
       isLoading: 'isLoading',
     }),
     validateForm () {
-      if (this.isValidSelector && (this.selectedBooks.length || this.searchAllBooks.value) && (this.selectedDefaultSelector || this.customSelector)) {
+      if (
+        this.isValidSelector
+        && (this.selectedBooks.length || this.searchAllBooks.value)
+        && this.customSelector
+      ) {
         return true
       }
       return false
@@ -125,7 +154,7 @@ export default {
       this.$emit('showTutorial')
     },
     labelSelectBook (book) {
-      return book.book_name.replace(/_/g, ' ')
+      return book.book_name
     },
     validateSelector (selector) {
       if (!selector) return true
@@ -133,7 +162,7 @@ export default {
       const splitAtHas = selector.split(':has')
       if (selector.match(':has')) {
         if (splitAtHas.length > 2) {
-          this.invalidSelectorInformation = {message: 'We do not suppot nested :has selectors.'}
+          this.invalidSelectorInformation = { message: 'We do not support nested :has selectors.' }
           return false
         }
         return true
@@ -169,7 +198,7 @@ export default {
     },
     getResults () {
       if (!this.validateForm) return
-      
+
       if (this.searchAllBooks.value || this.selectedBooks.length > 1) {
         return this.getMultipleResults()
       }
@@ -179,9 +208,8 @@ export default {
 
       const book = this.selectedBooks[0]
       const payload = {
-        book, 
-        element: this.customSelector ? this.customSelector : this.selectedDefaultSelector,
-        isCustomSelector: this.customSelector ? true : false,
+        book,
+        element: this.customSelector,
       }
 
       this.$router.push(`?book=${payload.book.book_name}&element=${payload.element}`)
@@ -215,7 +243,6 @@ export default {
     },
     clearForm () {
       this.selectedBooks = []
-      this.selectedDefaultSelector = ''
       this.customSelector = ''
       this.invalidReason = ''
       this.showSuccess = false
@@ -227,27 +254,6 @@ export default {
   components: {
     Multiselect,
   },
-  beforeCreate() {
-    const config = {
-      responseType: 'json'
-    }
-
-    axios.get('https://content-finder.herokuapp.com/BooksAvaliable', config)
-      .then(res => {
-        return this.booksList = res.data.Books
-      })
-      .catch(e => {
-        return e
-      })
-
-    axios.get('https://content-finder.herokuapp.com/API/AvaliableSearchElements', config)
-      .then(res => {
-        return this.avaliableSearchElements = res.data.Elements
-      })
-      .catch(e => {
-        return e
-      })
-  },
   created() {
     const book = this.$route.query.book
     const books = this.$route.query.books
@@ -257,15 +263,15 @@ export default {
       this.customSelector = element
     }
     if (book) {
-      this.searchAllBooks = {label: 'No', value: false}
-      this.selectedBooks = [{book_name: book}]
+      this.searchAllBooks = { label: 'No', value: false }
+      this.selectedBooks = [{ book_name: book }]
     } else if (books) {
       if (books === 'all') {
-        this.searchAllBooks = {label: 'Yes', value: true}
+        this.searchAllBooks = { label: 'Yes', value: true }
         this.selectedBooks = []
       } else {
-        this.searchAllBooks = {label: 'No', value: false}
-        this.selectedBooks = books.split(',').map(bName => { 
+        this.searchAllBooks = { label: 'No', value: false }
+        this.selectedBooks = books.split(',').map(bName => {
           return { book_name: bName }
         })
       }

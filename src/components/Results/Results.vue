@@ -8,6 +8,8 @@
           <span>Content fetched at: {{ data.contentFetchedAt }}</span>
           <span>Fetched from: {{ data.contentFetchedFrom }}</span>
           <span>Baked: {{ data.baked }}</span>
+          <span>Baked at: {{ data.contentBakedAt }}</span>
+          <span>Content UUID: {{ data.contentUUID }}</span>
         </span>
       </h2>
       <h2 v-else>Loading...</h2>

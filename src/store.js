@@ -5,8 +5,8 @@ import axios from 'axios'
 Vue.use(Vuex)
 
 const timeout = (ms) => {
-  return new Promise((resolve, _) => {
-    setTimeout(() => {resolve()}, ms)
+  return new Promise((resolve) => {
+    setTimeout(() => { resolve() }, ms)
   })
 }
 
@@ -60,7 +60,7 @@ export default new Vuex.Store({
         }
         return false
       })
-      
+
       if (job) {
         state.results = job.results
       } else {
@@ -90,7 +90,7 @@ export default new Vuex.Store({
         }
       }
     },
-    updateJob (state, {jobId, results, err}) {
+    updateJob (state, { jobId, results, err }) {
       state.jobs = state.jobs.map(job => {
         if (job.id === jobId) {
           if (err) {
@@ -140,7 +140,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async fetchMultipleResults ({commit, dispatch}, {books, element}) {
+    async fetchMultipleResults ({ commit, dispatch }, { books, element }) {
       for (const book of books) {
         const jobId = book.book_name + new Date().toISOString()
         const jobData = {
@@ -151,54 +151,46 @@ export default new Vuex.Store({
         commit('addNewJob', jobData)
         await timeout(300)
         let err = null
-        const results = await dispatch('getResults', {book, element, isCustomSelector: true})
+        const results = await dispatch('getResults', { book, element })
           .then(res => res)
           .catch(e => {
             err = e
           })
-        commit('updateJob', {jobId, results, err})
+        commit('updateJob', { jobId, results, err })
       }
       commit('setLoading', false)
     },
-    getResults (_, { book, element, isCustomSelector = true }) {
+    getResults (_, { book, element }) {
       return new Promise((resolve, reject) => {
         const payload = {
           config: {
             responseType: 'json'
           },
           params: {
-            bookName: book.book_name,
+            bookName: book.book_name.replace(/\s+/, '_'),
             element: element
           }
         }
-  
-        const customElementsEndpoint = process.env.NODE_ENV === 'development' ?
-        'http://localhost:3000/elements' :
-        'https://elefind.naukosfera.com/elements'
-  
-        const defaultSelectorsEndpoint = 'https://content-finder.herokuapp.com/API/GetElementsNonCustom.do'
 
-        const link = isCustomSelector ? customElementsEndpoint : defaultSelectorsEndpoint
+        const link = process.env.NODE_ENV === 'development'
+          ? 'http://localhost:3000/elements'
+          : 'https://elefind.naukosfera.com/elements'
 
         axios.get(link, payload)
           .then(res => {
-            const data = {
+            resolve({
               bookName: payload.params.bookName,
               thumbnail: book.book_thumbnail,
               element: payload.params.element,
-              results: res.data.Results,
-              baked: typeof res.data.baked === 'boolean' ? res.data.baked : 'undefined',
-              contentFetchedAt: res.data.contentFetchedAt ? res.data.contentFetchedAt : 'undefined',
-              contentFetchedFrom: res.data.contentFetchedFrom ? res.data.contentFetchedFrom : 'undefined',
-            }
-            resolve(data)
+              ...res.data,
+            })
           })
           .catch(e => {
             reject(e)
           })
       })
     },
-    async refreshJob ({commit, dispatch}, job) {
+    async refreshJob ({ commit, dispatch }, job) {
       if (!job) {
         throw new Error('You have to provide job.')
       }
@@ -206,16 +198,15 @@ export default new Vuex.Store({
       commit('restartJob', job)
       let err = null
       const payload = {
-        book: {book_name: job.book_name},
+        book: { book_name: job.book_name },
         element: job.element,
-        isCustomSelector: true,
       }
       const results = await dispatch('getResults', payload)
         .then(res => res)
         .catch(e => {
           err = e
         })
-      commit('updateJob', {jobId: job.id, results, err})
+      commit('updateJob', { jobId: job.id, results, err })
     }
   }
 })
